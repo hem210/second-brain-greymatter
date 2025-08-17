@@ -17,3 +17,17 @@ This project was created as a learning exercise to practice full-stack developme
   * **Create Content**: Add YouTube videos or Twitter/X tweets, with the option to assign custom titles.
   * **Filter Options**: Sidebar filter to view only YouTube or Twitter/X content.
   * **Share Brain**: Generate a custom shareable link that allows others to view your saved collection.
+
+## Screenshots
+
+### Signup Page
+![Signup Page](./assets/signup.png)
+
+### Dashboard
+![Dashboard](./assets/dashboard.png)
+
+### Create Content
+![Create Content](./assets/create-content.png)
+
+### Shared Link
+![Shared Link](./assets/shared-link.png)
