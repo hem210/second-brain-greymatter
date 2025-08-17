@@ -5,8 +5,9 @@ import { userauth } from "./middleware/usermiddleware";
 import { contentRouter } from "./routes/content";
 import mongoose from "mongoose";
 import { shareLinkRouter } from "./routes/sharelink";
+import { MONGO_URI } from "./config";
 
-mongoose.connect("mongodb+srv://hemang:TfCyNoxo4VYz6hRF@cluster0.4edhm.mongodb.net/second-brain");
+mongoose.connect(MONGO_URI);
 
 const app = express();
 
