@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# JS/TS
 node_modules
 dist
 dist-ssr
@@ -23,3 +24,48 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.code-workspace
+
+# Python
+# Byte-code files
+*.pyc
+__pycache__/
+*.pyd
+*.so
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Editor/IDE specific files
+.vscode/        # VSCode
+
+# OS generated files
+Thumbs.db       # Windows
+ehthumbs.db     # Windows
+Desktop.ini     # Windows
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Data files (if not meant for version control)
+*.csv
+*.json
+*.xml
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Miscellaneous
+build/
+dist/
+*.egg-info/
+.coverage
+.mypy_cache/
+.pytest_cache/
