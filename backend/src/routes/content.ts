@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { ContentModel, contentTypes } from "../db";
+import axios from "axios";
+import { TOP_K } from "../config";
 
 export const contentRouter = Router()
 
@@ -14,11 +16,18 @@ contentRouter.post("/api/v1/content", async (req: Request, res: Response) => {
         return;
     }
     const contentSchema = z.object({
-        link: z.string(),
+        link: z.string().optional(),
         type: z.enum(contentTypes),
         title: z.string().max(30, "Maximum 30 characters allowed in title"),
+        content: z.string().optional(),
         tags: z.array(z.string()),
-    });
+    }).refine(
+        (data) => data.link || data.content,
+        {
+            message: "Either link or content is required",
+            path: ["link"]
+        }
+    );
     const parsedBody = contentSchema.safeParse(req.body);
     if(!parsedBody.success){
         console.log(parsedBody.error.flatten().fieldErrors);
@@ -30,15 +39,31 @@ contentRouter.post("/api/v1/content", async (req: Request, res: Response) => {
         return;
     }
 
-    const { link, type, title, tags } = parsedBody.data;
+    const { link, type, title, content, tags } = parsedBody.data;
     try{
-        await ContentModel.create({
+        const newContent = await ContentModel.create({
             userId: userId,
             link: link,
             type: type,
             title: title,
+            content: content,
             tags: tags
         });
+
+        try {
+            await axios.post("http://localhost:8000/api/v1/embed", {
+                note_id: newContent._id.toString(), // assuming MongoDB _id
+                user_id: userId,
+                content: content || "",
+                link: link || "",
+                type,
+                title,
+                tags,
+            });
+            console.log("Sent content to Python embed endpoint");
+        } catch (pythonError: any) {
+            console.error("Python API call failed:", pythonError);
+        }
         res.json({ message: "Content added" });
         return;
     } catch (err){
@@ -101,3 +126,41 @@ contentRouter.delete("/api/v1/content", async (req: Request, res: Response) => {
         return;
     }
 })
+
+contentRouter.post("/api/v1/search", async (req: Request, res: Response) => {
+    const userId = req.id;
+
+    try {
+        // Forward the request to the Python API
+        const { data } = await axios.post("http://localhost:9000/api/v1/search", {
+            user_id: userId,
+            query: req.body.query, // better use req.body for POST payloads
+            top_k: req.body.top_k || TOP_K,
+        });
+
+        console.log("Search request forwarded to Python API");
+        // Return exactly what Python returned
+        res.status(200).json(data);
+        return;
+
+    } catch (error) {
+        console.error("Python API call failed:", (error as Error).message);
+
+        // Graceful error handling
+        if (axios.isAxiosError(error)) {
+            const status = error.response?.status || 500;
+            const detail = error.response?.data?.detail || error.message;
+            res.status(status).json({
+                error: "Python API call failed",
+                detail,
+            });
+            return;
+        }
+
+        res.status(500).json({
+            error: "Unexpected error occurred",
+            detail: (error as Error).message,
+        });
+        return;
+    }
+});

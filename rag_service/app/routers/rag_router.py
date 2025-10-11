@@ -85,7 +85,6 @@ async def embed_note_handler(payload: Search):
     
     llm_response = await llm_query(context=context, query=payload.query)
 
-    #TODO: proceed with the results object
     return {"llm_response": llm_response, "sources": sources}
 
 @rag_router.delete("/note/{note_id}")
