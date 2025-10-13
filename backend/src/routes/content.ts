@@ -2,7 +2,8 @@ import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { ContentModel, contentTypes } from "../db";
 import axios from "axios";
-import { TOP_K } from "../config";
+import { RAG_SERVICE_URL, TOP_K } from "../config";
+import { normalizeXtoTwitter } from "../utils/twitterUtils";
 
 export const contentRouter = Router()
 
@@ -40,10 +41,12 @@ contentRouter.post("/api/v1/content", async (req: Request, res: Response) => {
     }
 
     const { link, type, title, content, tags } = parsedBody.data;
+    const normalizedLink = normalizeXtoTwitter(link);
+
     try{
         const newContent = await ContentModel.create({
             userId: userId,
-            link: link,
+            link: normalizedLink,
             type: type,
             title: title,
             content: content,
@@ -51,7 +54,7 @@ contentRouter.post("/api/v1/content", async (req: Request, res: Response) => {
         });
 
         try {
-            await axios.post("http://localhost:8000/api/v1/embed", {
+            await axios.post(RAG_SERVICE_URL + "/api/v1/embed", {
                 note_id: newContent._id.toString(), // assuming MongoDB _id
                 user_id: userId,
                 content: content || "",
@@ -112,9 +115,11 @@ contentRouter.get("/api/v1/content", async (req: Request, res: Response) => {
 
 contentRouter.delete("/api/v1/content", async (req: Request, res: Response) => {
     const userId = req.id;
+    const contentId = req.body.contentId;
     try{
-        const result = await ContentModel.deleteMany({
+        const result = await ContentModel.deleteOne({
             userId: userId,
+            _id: contentId
         });
         res.json({
             message: `Deleted ${result.deletedCount} content item(s) for userId ${userId}`
@@ -132,7 +137,7 @@ contentRouter.post("/api/v1/search", async (req: Request, res: Response) => {
 
     try {
         // Forward the request to the Python API
-        const { data } = await axios.post("http://localhost:9000/api/v1/search", {
+        const { data } = await axios.post(RAG_SERVICE_URL + "/api/v1/search", {
             user_id: userId,
             query: req.body.query, // better use req.body for POST payloads
             top_k: req.body.top_k || TOP_K,

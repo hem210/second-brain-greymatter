@@ -21,10 +21,10 @@ async def embed_note_handler(payload: Content):
         )
     
     try:
-        if payload.type.lower() in ["linkedin", "tweet", "note"]:
+        if payload.type.lower() == "note":
             content = payload.content
             result = None
-        else:
+        elif payload.type.lower() == "youtube":
             # Handle Youtube
             result = get_transcript_data(payload.link, quiet=False)
             content = result.get("transcript", "")
@@ -32,6 +32,8 @@ async def embed_note_handler(payload: Content):
                 return HTTPException(
                 status_code=411, detail="transcript cound not be extracted"
             )
+        else:
+            return Response(content="success. no chunks created.", status_code=200)
 
         chunks = chunk_text_spacy(content)
         records: List[Dict[str, str]] = []

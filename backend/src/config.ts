@@ -13,4 +13,5 @@ function getEnvVar(key: string): string {
 
 export const MONGO_URI = getEnvVar("MONGO_URI");
 export const JWT_SECRET = getEnvVar("JWT_SECRET");
+export const RAG_SERVICE_URL = getEnvVar("RAG_SERVICE_URL")
 export const TOP_K = 3
