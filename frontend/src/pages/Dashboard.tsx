@@ -6,7 +6,7 @@ import { PlusIcon } from "../icons/PlusIcon";
 import { ShareIcon } from "../icons/ShareIcon";
 import { Card } from "../components/Card";
 import { useContent } from "../hooks/useContent";
-import { BACKEND_URL, ContentType } from "../config";
+import { BACKEND_URL, ContentType, FRONTEND_URL } from "../config";
 import axios from "axios";
 import { SearchModal } from "../components/SearchModal";
 import { SearchBar } from "../components/SearchBar";
@@ -52,7 +52,7 @@ export function Dashboard() {
       }
     );
 
-    const shareUrl = `http://127.0.0.1:5173/share/${response.data.link}`;
+    const shareUrl = `${FRONTEND_URL}/share/${response.data.link}`;
     alert(shareUrl);
   }
 

@@ -21,8 +21,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route 
-          path="/"
-          element={token ? <Navigate to="/dashboard" /> : <Navigate to="/signup" />}
+          path="/share/:shareid"
+          element={token ? <SharedBrain /> : <Navigate to="/signup" />}
         />
         <Route 
           path="/signup"
@@ -37,8 +37,8 @@ function App() {
           element={token ? <Dashboard /> : <Navigate to="/signup" />}
         />
         <Route 
-          path="/share/:shareid"
-          element={token ? <SharedBrain /> : <Navigate to="/signup" />}
+          path="/"
+          element={token ? <Navigate to="/dashboard" /> : <Navigate to="/signup" />}
         />
         <Route path="*" element={<Navigate to="/" />}/>
       </Routes>
