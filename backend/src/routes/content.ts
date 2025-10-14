@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { ContentModel, contentTypes } from "../db";
 import axios from "axios";
-import { RAG_SERVICE_URL, TOP_K } from "../config";
+import { RAG_API_KEY, RAG_SERVICE_URL, TOP_K } from "../config";
 import { normalizeXtoTwitter } from "../utils/twitterUtils";
 
 export const contentRouter = Router()
@@ -62,6 +62,10 @@ contentRouter.post("/api/v1/content", async (req: Request, res: Response) => {
                 type,
                 title,
                 tags,
+            }, {
+                headers: {
+                    "X-Api-Key": RAG_API_KEY
+                }
             });
             console.log("Sent content to Python embed endpoint");
         } catch (pythonError: any) {
@@ -141,6 +145,10 @@ contentRouter.post("/api/v1/search", async (req: Request, res: Response) => {
             user_id: userId,
             query: req.body.query, // better use req.body for POST payloads
             top_k: req.body.top_k || TOP_K,
+        }, {
+            headers: {
+                "X-Api-Key": RAG_API_KEY
+            }
         });
 
         console.log("Search request forwarded to Python API");

@@ -1,20 +1,17 @@
 from typing import Dict, List, Optional
-from fastapi import APIRouter, Form, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response
 
 from app.models import Content, Search
 from app.db import pc_index
 from app.services.chunking_service import chunk_text_spacy
 from app.services.llm_query_service import llm_query
+from app.services.verify_key_service import verify_api_key
 from app.services.youtube_transcript_service import get_transcript_data
 
 rag_router = APIRouter()
 
-@rag_router.get("/rag")
-async def rag_handler():
-    return {"message": "This is rag router"}
-
 @rag_router.post("/embed")
-async def embed_note_handler(payload: Content):
+async def embed_note_handler(payload: Content, api_key: str = Depends(verify_api_key)):
     if not payload.link and not payload.content:
         return HTTPException(
             status_code=411, detail="Either link or content is required"
@@ -60,7 +57,7 @@ async def embed_note_handler(payload: Content):
     return Response(content="success", status_code=200)
 
 @rag_router.post("/search")
-async def embed_note_handler(payload: Search):
+async def embed_note_handler(payload: Search, api_key: str = Depends(verify_api_key)):
     if not payload.query:
         return HTTPException(status_code=403, detail="Query is empty")
     
@@ -88,7 +85,3 @@ async def embed_note_handler(payload: Search):
     llm_response = await llm_query(context=context, query=payload.query)
 
     return {"llm_response": llm_response, "sources": sources}
-
-@rag_router.delete("/note/{note_id}")
-async def embed_note_handler(Request: Request):
-    return {"message": "This is delete"}

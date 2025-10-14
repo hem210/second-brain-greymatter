@@ -9,3 +9,4 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX = "notes-index"
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+RAG_API_KEY = os.getenv("RAG_API_KEY")
