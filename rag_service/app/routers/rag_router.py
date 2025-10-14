@@ -61,27 +61,31 @@ async def embed_note_handler(payload: Search, api_key: str = Depends(verify_api_
     if not payload.query:
         return HTTPException(status_code=403, detail="Query is empty")
     
-    results = pc_index.search(namespace=payload.user_id, query={
-        "inputs": {"text": payload.query},
-        "top_k": payload.top_k
-    })
+    try:
+        results = pc_index.search(namespace=payload.user_id, query={
+            "inputs": {"text": payload.query},
+            "top_k": payload.top_k
+        })
 
-    threshold = 0.3
-    context = "\n".join(hit["fields"]["text"] for hit in results["result"]["hits"] if hit["_score"] > threshold)
-    
-    seen = set()
-    sources = []
-    for hit in results["result"]["hits"]:
-        if hit["_score"] > threshold:
-            full_id = hit["_id"]
-            note_id = full_id.split("#")[0]  # take part before '#'
-            title = hit["fields"].get("title", "").strip()  # handle missing titles safely
-            
-            key = (note_id, title)
-            if key not in seen:
-                seen.add(key)
-                sources.append({"note_id": note_id, "title": title})
-    
-    llm_response = await llm_query(context=context, query=payload.query)
+        threshold = 0.3
+        context = "\n".join(hit["fields"]["text"] for hit in results["result"]["hits"] if hit["_score"] > threshold)
+        
+        seen = set()
+        sources = []
+        for hit in results["result"]["hits"]:
+            if hit["_score"] > threshold:
+                full_id = hit["_id"]
+                note_id = full_id.split("#")[0]  # take part before '#'
+                title = hit["fields"].get("title", "").strip()  # handle missing titles safely
+                
+                key = (note_id, title)
+                if key not in seen:
+                    seen.add(key)
+                    sources.append({"note_id": note_id, "title": title})
+        
+        llm_response = await llm_query(context=context, query=payload.query)
+    except Exception as e:
+        print(str(e))
+        return HTTPException(status_code=503, detail="Error occurred while searching your query.")
 
     return {"llm_response": llm_response, "sources": sources}

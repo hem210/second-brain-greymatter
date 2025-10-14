@@ -8,7 +8,6 @@ import type { ContentType } from "../config";
 
 
 export function SharedBrain() {
-  console.log("reached here");
   
   const { shareid } = useParams<{ shareid: string }>();
   const contents = useSharedContent(shareid);

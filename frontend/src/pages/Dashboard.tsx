@@ -58,7 +58,6 @@ export function Dashboard() {
 
   // --- Search handler ---
   function handleSearchClick(query: string) {
-    console.log("Search bar query:", query);
     setSearchTerm(query);
     setSearchModalOpen(true);
   }
