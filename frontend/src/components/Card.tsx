@@ -21,7 +21,9 @@ const onShare = (link?: string) => {
 
 export function Card({ title, link, text, type, onDelete }: CardProps) {
   useEffect(() => {
+    // @ts-expect-error type not known for twttr
     if (type === ContentType.Twitter && window?.twttr?.widgets) {
+      // @ts-expect-error type not known for twttr
       window.twttr.widgets.load();
     }
   }, [type]);

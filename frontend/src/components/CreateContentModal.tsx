@@ -11,7 +11,7 @@ interface CreateContentModalProps {
 }
 
 export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
-  const [type, setType] = useState(ContentType.Youtube);
+  const [type, setType] = useState<ContentType>(ContentType.Youtube);
   const linkRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const tagsRef = useRef<HTMLInputElement>(null);
@@ -95,7 +95,7 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Title
             </label>
-            <Input ref={titleRef} placeholder="Enter title" />
+            <Input ref={titleRef} placeholder="Enter title" type="text" />
           </div>
 
           {type !== ContentType.Note && (
@@ -103,7 +103,7 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Link
               </label>
-              <Input ref={linkRef} placeholder="https://..." />
+              <Input ref={linkRef} placeholder="https://..." type="text" />
             </div>
           )}
 
@@ -124,7 +124,7 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tags
             </label>
-            <Input ref={tagsRef} placeholder="Comma-separated (e.g. tech, ai)" />
+            <Input ref={tagsRef} placeholder="Comma-separated (e.g. tech, ai)" type="text" />
           </div>
         </div>
 
