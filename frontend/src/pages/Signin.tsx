@@ -5,7 +5,7 @@ import { BACKEND_URL } from "../config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-export function Signin() {
+export function Signin({ setToken }: { setToken: (token: string) => void }) {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -29,6 +29,7 @@ export function Signin() {
         password,
       });
       localStorage.setItem("token", response.data.token);
+      setToken(response.data.token);
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
