@@ -7,6 +7,13 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const t = localStorage.getItem("token");
+    setToken(t);
+    setReady(true);
+  }, []);
 
   // Sync state with localStorage changes (like login/logout)
   useEffect(() => {
@@ -16,6 +23,8 @@ function App() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+
+  if (!ready) return null;
 
   return (
     <BrowserRouter>
