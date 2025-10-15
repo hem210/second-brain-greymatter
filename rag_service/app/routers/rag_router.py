@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response
 
 from app.models import Content, Search
 from app.db import pc_index
+from app.services.article_scraping_service import extract_article_firecrawl
 from app.services.chunking_service import chunk_text_spacy
 from app.services.llm_query_service import llm_query
 from app.services.verify_key_service import verify_api_key
@@ -31,7 +32,13 @@ async def embed_note_handler(payload: Content, api_key: str = Depends(verify_api
             content = result.get("transcript", "")
             if not content:
                 raise HTTPException(
-                status_code=411, detail="transcript cound not be extracted"
+                status_code=411, detail="transcript could not be extracted"
+            )
+        elif payload.type.lower() == "article":
+            content = extract_article_firecrawl(payload.link)
+            if not content:
+                raise HTTPException(
+                status_code=411, detail="article content could not be extracted"
             )
         else:
             return Response(content="success. no chunks created.", status_code=200)

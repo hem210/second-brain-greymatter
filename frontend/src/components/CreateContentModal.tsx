@@ -70,7 +70,7 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
           <label className="block text-sm font-medium mb-1 text-gray-700">
             Content Type
           </label>
-          <div className="flex justify-center gap-3 mb-4">
+          <div className="flex justify-center flex-wrap gap-3 mb-4">
             <Button
               text="Youtube"
               variant={type === ContentType.Youtube ? "primary" : "secondary"}
@@ -86,6 +86,11 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
               variant={type === ContentType.Note ? "primary" : "secondary"}
               onClick={() => setType(ContentType.Note)}
             />
+            <Button
+              text="Article"
+              variant={type === ContentType.Article ? "primary" : "secondary"}
+              onClick={() => setType(ContentType.Article)}
+            />
           </div>
         </div>
 
@@ -98,6 +103,7 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
             <Input ref={titleRef} placeholder="Enter title" type="text" />
           </div>
 
+          {/* Link input for all except Note */}
           {type !== ContentType.Note && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -5,6 +5,7 @@ export const ContentType = {
   Youtube: "youtube",
   Twitter: "twitter",
   Note: "note",
+  Article: "article"
 } as const;
 
 export type ContentType = (typeof ContentType)[keyof typeof ContentType];

@@ -3,15 +3,16 @@ import { BinIcon } from "../icons/BinIcon";
 import { ShareIcon } from "../icons/ShareIcon";
 import { YouTubeIcon } from "../icons/Youtube";
 import { TwitterIcon } from "../icons/Twitter";
-import { ContentType } from "../config";
 import { DocumentIcon } from "../icons/DocumentIcon";
+import { ContentType } from "../config";
+import { LinkIcon } from "../icons/LinkIcon";
 
 interface CardProps {
   title: string;
   link?: string;
   text?: string;
   type: ContentType;
-  onDelete?: () => void; // better UX: explicit delete handler
+  onDelete?: () => void;
 }
 
 const onShare = (link?: string) => {
@@ -41,6 +42,7 @@ export function Card({ title, link, text, type, onDelete }: CardProps) {
           {type === ContentType.Youtube && <YouTubeIcon size="md" />}
           {type === ContentType.Twitter && <TwitterIcon size="md" />}
           {type === ContentType.Note && <DocumentIcon size="md" />}
+          {type === ContentType.Article && <LinkIcon size="md" />}
           <h3 className="text-black font-semibold text-sm leading-snug break-words line-clamp-2">
             {title}
           </h3>
@@ -90,6 +92,17 @@ export function Card({ title, link, text, type, onDelete }: CardProps) {
           <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line break-words">
             {truncateText(text, 250)}
           </p>
+        )}
+
+        {type === ContentType.Article && link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 text-sm hover:underline break-words"
+          >
+            {link}
+          </a>
         )}
       </div>
     </div>

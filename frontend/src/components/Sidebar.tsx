@@ -1,5 +1,6 @@
 import { ContentType } from "../config";
 import { DocumentIcon } from "../icons/DocumentIcon";
+import { LinkIcon } from "../icons/LinkIcon";
 import { LogoIcon } from "../icons/LogoIcon";
 import { TwitterIcon } from "../icons/Twitter";
 import { YouTubeIcon } from "../icons/Youtube";
@@ -52,6 +53,16 @@ export function Sidebar({ activeFilter, setActiveFilter }: SidebarProps) {
           }
           icon={<DocumentIcon size="md" />}
           text="Text Notes"
+        />
+        <SidebarItem
+          active={activeFilter === ContentType.Article}
+          onClick={() =>
+            setActiveFilter(
+              activeFilter === ContentType.Article ? null : ContentType.Article
+            )
+          }
+          icon={<LinkIcon size="md" />}
+          text="Article"
         />
       </div>
 

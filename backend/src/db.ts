@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Model, Types } from "mongoose";
 
-export const contentTypes = ["youtube", "twitter", "note"] as const;
+export const contentTypes = ["youtube", "twitter", "note", "article"] as const;
 
 interface IUser extends Document {
     _id: Types.ObjectId,
