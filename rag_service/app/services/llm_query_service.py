@@ -1,4 +1,7 @@
+import logging
 from app.gemini_llm import client
+
+logger = logging.getLogger("uvicorn")
 
 async def llm_query(context: str, query: str):
     prompt = f"""
@@ -10,9 +13,12 @@ Context: {context}
 
 Query: {query}
 """
-    
-    response = client.models.generate_content(
-        model = "gemini-2.5-flash", contents=prompt
-    )
+    try:
+        response = client.models.generate_content(
+            model = "gemini-2.5-flash", contents=prompt
+        )
+    except Exception as e:
+        logger.error(f"Error occurred while calling Gemini API: {str(e)}")
+        return ""
 
     return response.text

@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, List, Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response
 
@@ -10,10 +11,13 @@ from app.services.youtube_transcript_service import get_transcript_data
 
 rag_router = APIRouter()
 
+logger = logging.getLogger("uvicorn")
+
 @rag_router.post("/embed")
 async def embed_note_handler(payload: Content, api_key: str = Depends(verify_api_key)):
     if not payload.link and not payload.content:
-        return HTTPException(
+        logger.warning("link and content not provided")
+        raise HTTPException(
             status_code=411, detail="Either link or content is required"
         )
     
@@ -26,7 +30,7 @@ async def embed_note_handler(payload: Content, api_key: str = Depends(verify_api
             result = get_transcript_data(payload.link, quiet=False)
             content = result.get("transcript", "")
             if not content:
-                return HTTPException(
+                raise HTTPException(
                 status_code=411, detail="transcript cound not be extracted"
             )
         else:
@@ -51,15 +55,15 @@ async def embed_note_handler(payload: Content, api_key: str = Depends(verify_api
         
         pc_index.upsert_records(namespace=payload.user_id, records=records)
     except Exception as e:
-        print(str(e))
-        return HTTPException(status_code=503, detail="Error occurred while creating embeddings.")
+        logger.error(str(e))
+        raise HTTPException(status_code=503, detail="Error occurred while creating embeddings.")
     
     return Response(content="success", status_code=200)
 
 @rag_router.post("/search")
 async def embed_note_handler(payload: Search, api_key: str = Depends(verify_api_key)):
     if not payload.query:
-        return HTTPException(status_code=403, detail="Query is empty")
+        raise HTTPException(status_code=403, detail="Query is empty")
     
     try:
         results = pc_index.search(namespace=payload.user_id, query={
@@ -69,6 +73,8 @@ async def embed_note_handler(payload: Search, api_key: str = Depends(verify_api_
 
         threshold = 0.3
         context = "\n".join(hit["fields"]["text"] for hit in results["result"]["hits"] if hit["_score"] > threshold)
+        if not context:
+            logger.error(f"No relevant documents found for query: {payload.query}")
         
         seen = set()
         sources = []
@@ -85,7 +91,7 @@ async def embed_note_handler(payload: Search, api_key: str = Depends(verify_api_
         
         llm_response = await llm_query(context=context, query=payload.query)
     except Exception as e:
-        print(str(e))
-        return HTTPException(status_code=503, detail="Error occurred while searching your query.")
+        logger.error(str(e))
+        raise HTTPException(status_code=503, detail="Error occurred while searching your query.")
 
     return {"llm_response": llm_response, "sources": sources}

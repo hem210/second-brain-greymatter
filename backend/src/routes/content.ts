@@ -4,6 +4,7 @@ import { ContentModel, contentTypes } from "../db";
 import axios from "axios";
 import { RAG_API_KEY, RAG_SERVICE_URL, TOP_K } from "../config";
 import { normalizeXtoTwitter } from "../utils/twitterUtils";
+import { logAxiosError } from "../utils/logUtils";
 
 export const contentRouter = Router()
 
@@ -69,7 +70,7 @@ contentRouter.post("/api/v1/content", async (req: Request, res: Response) => {
             });
             console.log("Sent content to Python embed endpoint");
         } catch (pythonError: any) {
-            console.error("Python API call failed:", pythonError);
+            logAxiosError(pythonError);
         }
         res.json({ message: "Content added" });
         return;
@@ -157,7 +158,7 @@ contentRouter.post("/api/v1/search", async (req: Request, res: Response) => {
         return;
 
     } catch (error) {
-        console.error("Python API call failed:", (error as Error).message);
+        logAxiosError(error);
 
         // Graceful error handling
         if (axios.isAxiosError(error)) {
