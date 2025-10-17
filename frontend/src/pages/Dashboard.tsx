@@ -11,23 +11,16 @@ import axios from "axios";
 import { SearchModal } from "../components/SearchModal";
 import { SearchBar } from "../components/SearchBar";
 
-type Content = {
-  _id: string;
-  title: string;
-  link: string;
-  content?: string;
-  type: ContentType;
-};
 
 export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<ContentType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // --- Content Hook ---
-  const contents: Content[] | undefined = useContent();
-  const [isLoading, setIsLoading] = useState(true);
+  const { contents, refetch } = useContent();
 
   useEffect(() => {
     if (contents) {
@@ -71,6 +64,8 @@ export function Dashboard() {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
       });
+      alert("Content Deleted.");
+      await refetch();
       // Optionally refresh content list or remove from local state if managed here
     } catch (error) {
       console.error("Error deleting content:", error);
@@ -86,6 +81,7 @@ export function Dashboard() {
         <CreateContentModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
+          onContentCreated={refetch}
         />
         <SearchModal
           open={searchModalOpen}

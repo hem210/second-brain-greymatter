@@ -8,10 +8,12 @@ import axios from "axios";
 interface CreateContentModalProps {
   open: boolean;
   onClose: () => void;
+  onContentCreated: () => void;
 }
 
-export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
+export function CreateContentModal({ open, onClose, onContentCreated }: CreateContentModalProps) {
   const [type, setType] = useState<ContentType>(ContentType.Youtube);
+  const [loading, setLoading] = useState(false);
   const linkRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const tagsRef = useRef<HTMLInputElement>(null);
@@ -20,28 +22,42 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
   if (!open) return null;
 
   async function createContent() {
-    const title = titleRef.current?.value || "";
-    const tags = tagsRef.current?.value || "";
-    const tagsArray = tags
-      .split(",")
-      .map(tag => tag.trim())
-      .filter(Boolean);
+    try {
+      setLoading(true);
 
-    await axios.post(`${BACKEND_URL}/api/v1/content`, {
-      title,
-      type,
-      tags: tagsArray,
-      ...(type === ContentType.Note
-        ? { content: textRef.current?.value || "" }
-        : { link: linkRef.current?.value || "" }),
-    }, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    });
+      const title = titleRef.current?.value || "";
+      const tags = tagsRef.current?.value || "";
+      const tagsArray = tags
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(Boolean);
 
-    alert("Content added");
-    onClose();
+      await axios.post(
+        `${BACKEND_URL}/api/v1/content`,
+        {
+          title,
+          type,
+          tags: tagsArray,
+          ...(type === ContentType.Note
+            ? { content: textRef.current?.value || "" }
+            : { link: linkRef.current?.value || "" }),
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      );
+
+      alert("Content added");
+      if (onContentCreated) onContentCreated();
+      onClose();
+    } catch (err) {
+      alert("Something went wrong!");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -103,7 +119,6 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
             <Input ref={titleRef} placeholder="Enter title" type="text" />
           </div>
 
-          {/* Link input for all except Note */}
           {type !== ContentType.Note && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -130,7 +145,11 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tags
             </label>
-            <Input ref={tagsRef} placeholder="Comma-separated (e.g. tech, ai)" type="text" />
+            <Input
+              ref={tagsRef}
+              placeholder="Comma-separated (e.g. tech, ai)"
+              type="text"
+            />
           </div>
         </div>
 
@@ -138,9 +157,9 @@ export function CreateContentModal({ open, onClose }: CreateContentModalProps) {
         <div className="flex justify-center mt-6">
           <Button
             variant="primary"
-            text="Submit"
+            text={loading ? "Submitting..." : "Submit"}
             onClick={createContent}
-            loading={false}
+            disabled={loading}
           />
         </div>
       </div>

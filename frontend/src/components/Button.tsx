@@ -2,11 +2,11 @@ import type { ButtonHTMLAttributes, ReactElement } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant: "primary" | "secondary";
-    text: string;
+  text: string;
     startIcon?: ReactElement;
     endIcon?: ReactElement;
-    fullWidth?: boolean;
-    loading?: boolean;
+  fullWidth?: boolean;
+  loading?: boolean;
 }
 
 const ButtonVariants = {
@@ -14,11 +14,39 @@ const ButtonVariants = {
     "secondary": "bg-brand-200 text-brand-400"
 }
 
-const DefaultButtonStyles = "rounded-md py-2 px-4 flex justify-center items-center"
+const DefaultButtonStyles =
+  "flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
 
 export function Button(props: ButtonProps) {
-    const { variant, text, startIcon, endIcon, fullWidth, loading, ...rest } = props;
-    return <button className={`${ButtonVariants[variant]} ${DefaultButtonStyles} ${fullWidth ? " w-full" : null} ${loading ? " disabled cursor-progress opacity-45" : "cursor-pointer"}`} {...rest}>
-        {startIcon ? <div className="pr-2">{startIcon}</div> : null} {text} {endIcon ? <div className="pl-2">{endIcon}</div> : null}
+  const { variant, text, startIcon, endIcon, fullWidth, loading, ...rest } = props;
+
+  return (
+    <button
+      className={`${ButtonVariants[variant]} ${DefaultButtonStyles} ${
+        fullWidth ? "w-full" : ""
+      } ${loading ? "cursor-progress opacity-80" : ""}`}
+      disabled={loading || rest.disabled}
+      {...rest}
+    >
+      {/* Start Icon */}
+      {startIcon && !loading && <div className="pr-2">{startIcon}</div>}
+
+      {/* Button Text */}
+      {text}
+
+      {/* Spinner (only when loading) */}
+      {loading && (
+        <div
+          className={`w-4 h-4 border-2 rounded-full animate-spin ${
+            variant === "primary"
+              ? "border-white border-t-transparent"
+              : "border-gray-500 border-t-transparent"
+          }`}
+        />
+      )}
+
+      {/* End Icon */}
+      {endIcon && !loading && <div className="pl-2">{endIcon}</div>}
     </button>
+  );
 }

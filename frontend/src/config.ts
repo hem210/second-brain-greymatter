@@ -9,3 +9,11 @@ export const ContentType = {
 } as const;
 
 export type ContentType = (typeof ContentType)[keyof typeof ContentType];
+
+export type Content = {
+  _id: string;
+  title: string;
+  link: string;
+  content?: string;
+  type: ContentType;
+};
