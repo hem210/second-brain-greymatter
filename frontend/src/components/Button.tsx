@@ -1,18 +1,19 @@
 import type { ButtonHTMLAttributes, ReactElement } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    variant: "primary" | "secondary";
+  variant: "primary" | "secondary" | "danger";
   text: string;
-    startIcon?: ReactElement;
-    endIcon?: ReactElement;
+  startIcon?: ReactElement;
+  endIcon?: ReactElement;
   fullWidth?: boolean;
   loading?: boolean;
 }
 
 const ButtonVariants = {
-    "primary": "bg-brand-600 text-white",
-    "secondary": "bg-brand-200 text-brand-400"
-}
+  primary: "bg-brand-600 text-white hover:bg-brand-700",
+  secondary: "bg-brand-200 text-brand-600 hover:bg-brand-300",
+  danger: "bg-red-500 text-white hover:bg-red-600",
+};
 
 const DefaultButtonStyles =
   "flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
@@ -39,6 +40,8 @@ export function Button(props: ButtonProps) {
         <div
           className={`w-4 h-4 border-2 rounded-full animate-spin ${
             variant === "primary"
+              ? "border-white border-t-transparent"
+              : variant === "danger"
               ? "border-white border-t-transparent"
               : "border-gray-500 border-t-transparent"
           }`}

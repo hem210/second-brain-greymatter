@@ -10,7 +10,7 @@ import { BACKEND_URL, ContentType, FRONTEND_URL } from "../config";
 import axios from "axios";
 import { SearchModal } from "../components/SearchModal";
 import { SearchBar } from "../components/SearchBar";
-
+import { useNavigate } from "react-router-dom";
 
 export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -18,8 +18,8 @@ export function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<ContentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // --- Content Hook ---
   const { contents, refetch } = useContent();
 
   useEffect(() => {
@@ -49,6 +49,11 @@ export function Dashboard() {
     alert(shareUrl);
   }
 
+  function handleLogout() {
+    localStorage.removeItem("token");
+    navigate("/signin"); // redirect to signin page
+  }
+
   // --- Search handler ---
   function handleSearchClick(query: string) {
     setSearchTerm(query);
@@ -66,7 +71,6 @@ export function Dashboard() {
       });
       alert("Content Deleted.");
       await refetch();
-      // Optionally refresh content list or remove from local state if managed here
     } catch (error) {
       console.error("Error deleting content:", error);
       alert("Failed to delete content. Please try again.");
@@ -89,13 +93,13 @@ export function Dashboard() {
           query={searchTerm}
         />
 
-        {/* 1️⃣ Dashboard Heading */}
+        {/* Dashboard Heading */}
         <h1 className="text-2xl font-semibold text-gray-800 mb-4">
           My Brain
         </h1>
 
-        {/* 4️⃣ Sticky Header */}
-        <div className="sticky top-0 bg-gray-50 z-10 pb-4 flex justify-end items-center gap-4">
+        {/* Sticky Header with Buttons */}
+        <div className="sticky top-0 bg-gray-50 z-10 py-4 flex justify-end items-center gap-4">
           <SearchBar onSearchClick={handleSearchClick} />
           <Button
             startIcon={<ShareIcon size="md" />}
@@ -109,15 +113,20 @@ export function Dashboard() {
             variant="primary"
             onClick={() => setModalOpen(true)}
           />
+          {/* 🚪 Logout Button */}
+          <Button
+            text="Logout"
+            variant="danger"
+            onClick={handleLogout}
+          />
         </div>
 
-        {/* Loader */}
+        {/* Loader / Content */}
         {isLoading ? (
           <div className="flex items-center justify-center w-full h-64">
             <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-blue-500"></div>
           </div>
         ) : filteredContents.length === 0 ? (
-          // 3️⃣ Empty State
           <div className="flex flex-col items-center justify-center w-full h-64 text-gray-500 mt-6">
             <p className="text-lg font-medium">No content found</p>
             <p className="text-sm mt-2">
@@ -125,7 +134,6 @@ export function Dashboard() {
             </p>
           </div>
         ) : (
-          // Content Grid
           <div className="flex gap-4 flex-wrap mt-4">
             {filteredContents.map(({ _id, type, link, content, title }) => (
               <Card
